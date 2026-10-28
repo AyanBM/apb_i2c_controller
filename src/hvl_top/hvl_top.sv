@@ -1,0 +1,25 @@
+`ifndef HVL_TOP_INCLUDED_
+`define HVL_TOP_INCLUDED_
+
+//--------------------------------------------------------------------------------------------
+// HVL_TOP
+// It consists of the test_pkg to run the base test
+//--------------------------------------------------------------------------------------------
+module hvl_top;
+ //-------------------------------------------------------
+ // Package : Importing Uvm Pakckage and Test Package
+ //-------------------------------------------------------
+ import i3c_test_pkg::*;
+ import uvm_pkg::*;
+ 
+ //-------------------------------------------------------
+ // run_test for simulation
+ //-------------------------------------------------------
+
+ initial begin
+  run_test("i3c_base_test");
+ end
+
+endmodule : hvl_top
+
+`endif
