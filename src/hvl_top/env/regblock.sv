@@ -177,7 +177,7 @@ class i2c_reg_block extends uvm_reg_block;
 
   task write_scl_timeout(bit [23:0] t,
                          output uvm_status_e status,
-                         uvm_path_e path = UVM_FRONTDOOR);
+                         input uvm_path_e path = UVM_FRONTDOOR);
     scl_timeout2.write(status, t[23:16], path);
     scl_timeout1.write(status, t[15:8], path);
     scl_timeout0.write(status, t[7:0], path);
@@ -185,11 +185,12 @@ class i2c_reg_block extends uvm_reg_block;
 
   task write_sda_timeout(bit [23:0] t,
                          output uvm_status_e status,
-                         uvm_path_e path = UVM_FRONTDOOR);
+                         input uvm_path_e path = UVM_FRONTDOOR);
     sda_timeout2.write(status, t[23:16], path);
     sda_timeout1.write(status, t[15:8], path);
     sda_timeout0.write(status, t[7:0], path);
   endtask
 
 endclass
+
 

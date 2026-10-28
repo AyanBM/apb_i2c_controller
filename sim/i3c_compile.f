@@ -1,5 +1,7 @@
 +incdir+../../src/globals/
 +incdir+../../src/hvl_top/master/
++incdir+../../src/hdl_top/master_agent_bfm/
++incdir+../../src/hdl_top/apb_if/
 +incdir+../../src/hvl_top/controller/controller_sequences/
 +incdir+../../src/hvl_top/controller/
 +incdir+../../src/hdl_top/controller_agent_bfm/
@@ -29,6 +31,11 @@
 ../../src/hvl_top/test/i3c_test_pkg.sv
 
 ../../src/hdl_top/i3c_interface/i3c_if.sv
+
+../../src/hdl_top/apb_if/apb_if.sv
+../../src/hdl_top/master_agent_bfm/apb_master_driver_bfm.sv
+../../src/hdl_top/master_agent_bfm/apb_master_monitor_bfm.sv
+../../src/hdl_top/master_agent_bfm/apb_master_agent_bfm.sv
 
 ../../src/hdl_top/controller_agent_bfm/i3c_controller_driver_bfm.sv
 ../../src/hdl_top/controller_agent_bfm/i3c_controller_monitor_bfm.sv

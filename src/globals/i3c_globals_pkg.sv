@@ -81,6 +81,7 @@ typedef enum bit {
 i2c_address_mode_e addressMode;
     bit operation;
     bit targetAddressStatus;
+    bit targetAddressStatus2;
     bit writeDataStatus[MAXIMUM_BYTES];
     bit readDataStatus[MAXIMUM_BYTES];
     bit [DATA_WIDTH-1:0] writeData[MAXIMUM_BYTES];
@@ -147,5 +148,6 @@ i2c_address_mode_e addressMode;
 endpackage : i3c_globals_pkg 
 
 `endif
+
 
 

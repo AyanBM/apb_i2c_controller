@@ -126,7 +126,7 @@ function void i3c_env::connect_phase(uvm_phase phase);
 
   // Connect RAL to APB master sequencer
   reg_model.default_map.set_sequencer(
-    apb_master_agent_h.apb_master_sequencer_h,
+    apb_master_agent_h.apb_master_seqr_h,
     apb_adapter
 );
 
@@ -136,4 +136,5 @@ function void i3c_env::connect_phase(uvm_phase phase);
 endfunction : connect_phase
 
 `endif
+
 

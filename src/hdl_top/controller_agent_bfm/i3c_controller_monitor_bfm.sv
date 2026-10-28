@@ -1,9 +1,9 @@
-`ifndef I3C_TARGET_MONITOR_BFM_INCLUDED_
-`define I3C_TARGET_MONITOR_BFM_INCLUDED_
+`ifndef I3C_CONTROLLER_MONITOR_BFM_INCLUDED_
+`define I3C_CONTROLLER_MONITOR_BFM_INCLUDED_
 
 import i3c_globals_pkg::*;
 
-interface i3c_target_monitor_bfm(input pclk,
+interface i3c_controller_monitor_bfm(input pclk,
                                  input areset,
                                  input scl_i,
                                  input scl_o,
@@ -15,19 +15,19 @@ interface i3c_target_monitor_bfm(input pclk,
 
   import uvm_pkg::*;
   `include "uvm_macros.svh"
-  import i3c_target_pkg::*;
-  import i3c_target_pkg::i3c_target_monitor_proxy;
+  import i3c_controller_pkg::*;
+  import i3c_controller_pkg::i3c_controller_monitor_proxy;
 
-  i3c_target_monitor_proxy i3c_target_mon_proxy_h;
+  i3c_controller_monitor_proxy i3c_controller_mon_proxy_h;
   i3c_fsm_state_e state;
 
   // [NEW] first data bit already sampled while deciding "data or repeated start" (10-bit)
   bit preValid;
   bit preBit;
 
-  string name = "I3C_TARGET_MONITOR_BFM";
+  string name = "I3C_CONTROLLER_MONITOR_BFM";
   initial begin
-    $display("target Monitor BFM");
+    $display(name);
   end
 
   task wait_for_reset();
@@ -37,6 +37,7 @@ interface i3c_target_monitor_bfm(input pclk,
 
   task sample_idle_state();
     @(posedge pclk);
+    state <= IDLE;
   endtask: sample_idle_state
 
   task wait_for_idle_state();
@@ -50,7 +51,7 @@ interface i3c_target_monitor_bfm(input pclk,
   // [CHANGED] 7-bit flow unchanged. A first byte of the form 11110xx (10-bit header) selects the
   // 10-bit flow:  START | hdr(W) | ACK | A7..A0 | ACK | { data... | Sr | hdr(R) | ACK | data... }
   // A 10-bit read is reported as ONE transaction (operation = READ, full 10-bit address).
-  task sample_data(inout i3c_transfer_bits_s struct_packet,inout i3c_transfer_cfg_s struct_cfg);
+  task sample_data(inout i3c_transfer_bits_s struct_packet,input i3c_transfer_cfg_s struct_cfg);
     bit isSr;
 
     preValid = 1'b0;
@@ -243,7 +244,7 @@ interface i3c_target_monitor_bfm(input pclk,
   task sample_write_data(inout i3c_transfer_bits_s pkt, input int i, input dataTransferDirection_e dir);
     bit[DATA_WIDTH-1:0] wdata;
     state = WRITE_DATA;
-    `uvm_info("DEBUG_TARGET_MONITOR_BFM", $sformatf("dir %s ",dir.name()), UVM_HIGH);
+    `uvm_info("Controller_Monitor_BFM", $sformatf("Direction %s", dir.name()), UVM_HIGH);
     for(int k=0, bit_no=0; k<DATA_WIDTH; k++) begin
       // Logic for MSB first or LSB first
       bit_no = (dir == MSB_FIRST) ?
@@ -256,11 +257,9 @@ interface i3c_target_monitor_bfm(input pclk,
         detectEdge_scl(POSEDGE);
         wdata[bit_no] = sda_i;
       end
-      `uvm_info("DEBUG_MSHA_MONITOR_BFM", $sformatf(" bit_no = %0d, sda_i = %0d wdata[bit_no] = %0d \n wdata = %0b",bit_no,sda_i,wdata[bit_no], wdata), UVM_HIGH);
       pkt.no_of_i3c_bits_transfer++;
     end
     pkt.writeData[i] = wdata;
-    `uvm_info("DEBUG_TARGET_MONITOR_BFM", $sformatf(" i = %0d, wdata %0x",i, wdata), UVM_HIGH);
   endtask: sample_write_data
 
 
@@ -301,7 +300,6 @@ interface i3c_target_monitor_bfm(input pclk,
 
     do begin
       @(negedge pclk);
-      #1;
       scl_local = {scl_local[0], scl_i};
       sda_local = {sda_local[0], sda_i};
     end while(!(sda_local == POSEDGE && scl_local == 2'b11) );
@@ -317,7 +315,6 @@ interface i3c_target_monitor_bfm(input pclk,
 
     do begin
       @(negedge pclk);
-      #1;
       scl_local = {scl_local[0], scl_i};
       sda_local = {sda_local[0], sda_i};
     end while(!(sda_local == POSEDGE && scl_local == 2'b11) );
@@ -340,6 +337,7 @@ interface i3c_target_monitor_bfm(input pclk,
     `uvm_info("TARGET_DRIVER_BFM", $sformatf("scl %s detected", scl_edge_value.name()), UVM_HIGH);
   endtask: detectEdge_scl
 
-endinterface : i3c_target_monitor_bfm
+endinterface : i3c_controller_monitor_bfm
 
 `endif
+
