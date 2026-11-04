@@ -21,6 +21,14 @@ interface i3c_controller_driver_bfm(input pclk,
   i3c_controller_driver_proxy i3c_controller_drv_proxy_h;
 
   string name = "I3C_CONTROLLER_DRIVER_BFM";
+
+  // [NEW] bus slow-down. Every bit-level phase lasts tick_clks pclk cycles.
+  // 1 = original (very fast) behaviour. A DUT with a 2FF synchronizer and a 50 ns glitch
+  // filter needs a real SCL, so cfg.clockRateDividerValue > 4 is used as the phase length.
+  int tick_clks = 1;
+  task tick();
+    repeat(tick_clks) @(posedge pclk);
+  endtask : tick
   initial begin
     $display(name);
   end
@@ -34,33 +42,33 @@ interface i3c_controller_driver_bfm(input pclk,
   endtask: wait_for_reset
 
   task drive_idle_state();
-    @(posedge pclk);
+    tick();
      drive_scl(1);
      drive_sda(1);
     state <= IDLE;
   endtask: drive_idle_state
 
   task wait_for_idle_state();
-    @(posedge pclk);
+    tick();
     while(scl_i!=1 && sda_i!=1) begin
-      @(posedge pclk);
+      tick();
     end
     state = IDLE;
     `uvm_info(name, $sformatf("I3C bus is free state detected"), UVM_HIGH);
   endtask: wait_for_idle_state
 
   task sda_tristate_buf_on();
-    @(posedge pclk);
+    tick();
      drive_sda(0);
   endtask
 
   task scl_tristate_buf_on();
-    @(posedge pclk);
+    tick();
      drive_scl(0);
   endtask
 
   task scl_tristate_buf_off();
-    @(posedge pclk);
+    tick();
      drive_scl(1);
   endtask
 
@@ -71,6 +79,7 @@ interface i3c_controller_driver_bfm(input pclk,
     bit addrAck;
     `uvm_info(name, $sformatf("Starting the drive data method"), UVM_HIGH);
 
+    tick_clks = (configPacketStruct.clockRateDividerValue > 4) ? configPacketStruct.clockRateDividerValue : 1;
     drive_start();
 
     if(dataPacketStruct.addressMode == I2C_ADDR_7BIT) begin
@@ -155,12 +164,12 @@ interface i3c_controller_driver_bfm(input pclk,
 
 
   task drive_start();
-    @(posedge pclk);
+    tick();
     drive_scl(1);
     drive_sda(1);
     state = START;
 
-    @(posedge pclk);
+    tick();
     drive_scl(1);
     drive_sda(0);
     `uvm_info(name, $sformatf("Driving start condition"), UVM_MEDIUM);
@@ -169,13 +178,13 @@ interface i3c_controller_driver_bfm(input pclk,
 
   // [NEW] repeated start, called right after sample_ack (SCL is high, slave may hold SDA low)
   task drive_repeated_start();
-    @(posedge pclk);
+    tick();
     drive_scl(0);            // finish the ACK clock
-    @(posedge pclk);
+    tick();
     drive_sda(1);            // release SDA while SCL is low
-    @(posedge pclk);
+    tick();
     drive_scl(1);            // SCL high with SDA high
-    @(posedge pclk);
+    tick();
     drive_sda(0);            // SDA falls while SCL is high -> Sr
     state <= START;
     `uvm_info(name, $sformatf("Driving repeated start condition"), UVM_MEDIUM);
@@ -208,7 +217,7 @@ interface i3c_controller_driver_bfm(input pclk,
 
   task drive_operation(input bit wrBit);
     `uvm_info("DEBUG", $sformatf("Driving operation Bit = %0b",wrBit), UVM_NONE)
-    @(posedge pclk);
+    tick();
     drive_scl(0);
     state <= WR_BIT;
     drive_sda(wrBit);
@@ -217,12 +226,12 @@ interface i3c_controller_driver_bfm(input pclk,
 
 
   task sample_ack(output bit p_ack);
-    @(posedge pclk);
+    tick();
     drive_scl(0);
     drive_sda(1);
 
     state <= ACK_NACK;
-    @(posedge pclk);
+    tick();
     drive_scl(1);
 
     p_ack = sda_i;
@@ -231,19 +240,19 @@ interface i3c_controller_driver_bfm(input pclk,
 
 
   task stop();
-    @(posedge pclk);
+    tick();
     scl_oen <= TRISTATE_BUF_ON;
     scl_o   <= 0;
     state <= STOP;
 
-    @(posedge pclk);
+    tick();
     drive_scl(1);
     drive_sda(0);
 
-    @(posedge pclk);
+    tick();
     drive_scl(1);
     drive_sda(1);
-    @(posedge pclk);
+    tick();
   endtask
 
 
@@ -281,11 +290,11 @@ interface i3c_controller_driver_bfm(input pclk,
 
 
   task drive_readDataStatus(input bit ack);
-    @(posedge pclk);
+    tick();
     drive_scl(0);
     drive_sda(ack);
     state <= ACK_NACK;
-    @(posedge pclk);
+    tick();
     drive_scl(1);
   endtask: drive_readDataStatus
 
@@ -302,3 +311,4 @@ interface i3c_controller_driver_bfm(input pclk,
 
 endinterface : i3c_controller_driver_bfm
 `endif
+

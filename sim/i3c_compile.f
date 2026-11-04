@@ -1,3 +1,4 @@
++define+WITH_DUT
 +incdir+../../src/globals/
 +incdir+../../src/hvl_top/master/
 +incdir+../../src/hdl_top/master_agent_bfm/
@@ -13,6 +14,7 @@
 +incdir+../../src/hvl_top/test/
 +incdir+../../src/hdl_top/target_agent_bfm/
 +incdir+../../src/hdl_top/i3c_interface/
++incdir+../../rtl/include/
 
 ../../src/globals/i3c_globals_pkg.sv
 
@@ -44,6 +46,17 @@
 ../../src/hdl_top/target_agent_bfm/i3c_target_driver_bfm.sv
 ../../src/hdl_top/target_agent_bfm/i3c_target_monitor_bfm.sv
 ../../src/hdl_top/target_agent_bfm/i3c_target_agent_bfm.sv
+
+// DUT RTL (used because +define+WITH_DUT is set at the top)
+../../rtl/src/i2c_sync2.v
+../../rtl/src/i2c_glitchfilter.v
+../../rtl/src/i2c_counter.v
+../../rtl/src/fifo.v
+../../rtl/src/cmd_fifo.v
+../../rtl/src/i2c_master_driver.v
+../../rtl/src/i2c_slv_driver.v
+../../rtl/src/i2c_core.v
+../../rtl/src/apb4_i2c_top.v
 
 ../../src/hdl_top/hdl_top.sv
 ../../src/hvl_top/hvl_top.sv

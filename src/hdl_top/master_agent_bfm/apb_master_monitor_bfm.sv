@@ -4,13 +4,13 @@
 //-------------------------------------------------------
 // Importing apb global package
 //-------------------------------------------------------
-import apb_global_pkg::*;
+// (package import moved into the interface header so it does not leak into $unit)
 
 //--------------------------------------------------------------------------------------------
 // Interface: apb_master_monitor_bfm
 //  Connects the master monitor bfm with the master monitor proxy
 //--------------------------------------------------------------------------------------------
-interface apb_master_monitor_bfm (input bit pclk,
+interface apb_master_monitor_bfm import apb_global_pkg::*; (input bit pclk,
                                   input bit preset_n,
                                   input bit pslverr,
                                   input bit pready,
@@ -106,4 +106,5 @@ interface apb_master_monitor_bfm (input bit pclk,
 endinterface : apb_master_monitor_bfm
 
 `endif
+
 

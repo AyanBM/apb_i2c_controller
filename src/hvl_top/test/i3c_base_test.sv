@@ -6,12 +6,14 @@ class i3c_base_test extends uvm_test;
 
   i3c_env i3c_env_h;
   i3c_env_config i3c_env_cfg_h;
+  apb_master_agent_config apb_master_agent_cfg_h;   // [NEW] APB agent config (needed by apb_master_agent)
 
   extern function new(string name = "i3c_base_test", uvm_component parent = null);
   extern virtual function void build_phase(uvm_phase phase);
   extern virtual function void setup_env_cfg();
   extern virtual function void setup_controller_agent_cfg();
   extern virtual function void setup_target_agent_cfg();
+  extern virtual function void setup_apb_master_agent_cfg();   // [NEW]
   extern virtual function void end_of_elaboration_phase(uvm_phase phase);
   extern virtual task run_phase(uvm_phase phase);
 endclass : i3c_base_test
@@ -68,6 +70,9 @@ function void i3c_base_test::setup_env_cfg();
     i3c_env_cfg_h.i3c_target_agent_cfg_h[i].sprint()),UVM_NONE)
   end
   
+  // [NEW] APB master agent configuration
+  setup_apb_master_agent_cfg();
+
   uvm_config_db #(i3c_env_config)::set(this,"*","i3c_env_config",i3c_env_cfg_h);
   `uvm_info(get_type_name(),$sformatf("i3c_env_cfg = \n %0p", i3c_env_cfg_h.sprint()),UVM_NONE)
 
@@ -104,6 +109,16 @@ function void i3c_base_test::setup_target_agent_cfg();
   end
 endfunction: setup_target_agent_cfg
 
+// [NEW] Creates the APB master agent config and puts it in config_db
+function void i3c_base_test::setup_apb_master_agent_cfg();
+  apb_master_agent_cfg_h = apb_master_agent_config::type_id::create("apb_master_agent_cfg_h");
+  apb_master_agent_cfg_h.is_active    = UVM_ACTIVE;
+  apb_master_agent_cfg_h.no_of_slaves = 1;
+  apb_master_agent_cfg_h.has_coverage = 0;
+  uvm_config_db #(apb_master_agent_config)::set(this,"*apb_master_agent_h*",
+                                                "apb_master_agent_config",apb_master_agent_cfg_h);
+endfunction : setup_apb_master_agent_cfg
+
 function void i3c_base_test::end_of_elaboration_phase(uvm_phase phase);
   uvm_top.print_topology();
   uvm_test_done.set_drain_time(this,3000ns);
@@ -120,4 +135,3 @@ task i3c_base_test::run_phase(uvm_phase phase);
 
 endtask : run_phase
 `endif
-

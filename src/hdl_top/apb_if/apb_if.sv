@@ -4,13 +4,13 @@
 //-------------------------------------------------------
 // Importing apb global package
 //-------------------------------------------------------
-import apb_global_pkg::*;
+// (package import moved into the interface header so it does not leak into $unit)
 
 //--------------------------------------------------------------------------------------------
 // Interface : apb_if
 // Declaration of pin level signals for apb interface
 //--------------------------------------------------------------------------------------------
-interface apb_if (input pclk, input preset_n);
+interface apb_if import apb_global_pkg::*; (input pclk, input preset_n);
   
   //Variable : pselx
   //Used to select the slave
@@ -64,4 +64,5 @@ interface apb_if (input pclk, input preset_n);
 endinterface : apb_if
  
 `endif
+
 

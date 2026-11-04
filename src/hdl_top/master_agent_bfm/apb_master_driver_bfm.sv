@@ -4,14 +4,14 @@
 //-------------------------------------------------------
 // Importing apb global package
 //-------------------------------------------------------
-import apb_global_pkg::*;
+// (package import moved into the interface header so it does not leak into $unit)
 
 //--------------------------------------------------------------------------------------------
 // Interface : apb_master_driver_bfm
 //  Used as the HDL driver for apb
 //  It connects with the HVL driver_proxy for driving the stimulus
 //--------------------------------------------------------------------------------------------
-interface apb_master_driver_bfm (input  bit   pclk,
+interface apb_master_driver_bfm import apb_global_pkg::*; (input  bit   pclk,
                                  input  bit   preset_n,
                                  input  bit   pready,
                                  input  bit   pslverr,
@@ -195,4 +195,5 @@ interface apb_master_driver_bfm (input  bit   pclk,
 endinterface : apb_master_driver_bfm
 
 `endif
+
 

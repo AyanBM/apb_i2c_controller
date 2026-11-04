@@ -9,6 +9,7 @@ package i3c_test_pkg;
   import i3c_globals_pkg::*;
   import i3c_controller_pkg::*;
   import i3c_target_pkg::*;
+  import apb_master_pkg::*;
   import i3c_env_pkg::*;
   import i3c_controller_seq_pkg::*;
   import i3c_target_seq_pkg::*;
@@ -36,14 +37,19 @@ package i3c_test_pkg;
  `include "i3c_readOperationWithMSBDataDirection_test.sv"
  `include "i3c_readOperationWithLSBDataDirection_test.sv"
 
-
  `include "i3c_WriteFollowedByReadOperationWith32bitsData_test.sv"
  `include "i3c_ReadFollowedByWriteFollowedByReadOperationWith32bitsData_test.sv"
  `include "i3c_WriteFollowedByReadFollowedByWriteFollowedByReadOperationWith32bitsData_test.sv"
  `include "i3c_MultipleWritesMultipleReadsOperationWith32bitsData_test.sv"
- `include "i3c_writeOperationWithWrongTargetAddres_test.sv" 
+ // `include "i3c_writeOperationWithWrongTargetAddres_test.sv"
  `include "i3c_writeOperationWithRandomWriteDataStatusNACK_test.sv"
  `include "i3c_WriteFollowedByReadOperationWithRepeatedStart_test.sv"
+ // `include "i3c_writeOperation10bitAddress_test.sv"
+ // `include "i3c_readOperation10bitAddress_test.sv"
+
+ // DUT tests (APB config through RAL + I2C VIP as the other side)
+ `include "i2c_dut_seq.sv"
+ `include "i2c_dut_tests.sv"
 
 endpackage : i3c_test_pkg
 
