@@ -20,8 +20,10 @@ function void i3c_target_cfg_converter::from_class(input i3c_target_agent_config
   bit target_address_width;
   
   output_conv.targetAddress = input_conv_h.targetAddress;
+  output_conv.addressMode   = input_conv_h.addressMode;   // [NEW]
   output_conv.dataTransferDirection = dataTransferDirection_e'(input_conv_h.dataTransferDirection);
   output_conv.defaultReadData = input_conv_h.defaultReadData;
+  output_conv.stretchClks     = input_conv_h.stretchClks;   // [NEW]
 endfunction: from_class 
 
 
@@ -30,3 +32,4 @@ function void i3c_target_cfg_converter::do_print(uvm_printer printer);
 endfunction : do_print
 
 `endif
+

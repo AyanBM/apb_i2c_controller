@@ -20,6 +20,9 @@ interface i3c_target_driver_bfm(input pclk,
   bit preValid;
   bit preBit;
 
+  // [NEW] clock stretching: pclk cycles SCL is held low after each ACK bit (set from cfg in drive_data)
+  int stretch_clks = 0;
+
   import uvm_pkg::*;
   `include "uvm_macros.svh"
   import i3c_target_pkg::i3c_target_driver_proxy;
@@ -69,6 +72,7 @@ interface i3c_target_driver_bfm(input pclk,
     bit isSr;
 
     preValid = 1'b0;
+    stretch_clks = configPacketStruck.stretchClks;      // [NEW]
     dataPacketStruck.addressMode = configPacketStruck.addressMode;
     dataPacketStruck.targetAddressStatus2 = NACK;
 
@@ -91,6 +95,7 @@ interface i3c_target_driver_bfm(input pclk,
       if(dataPacketStruck.targetAddressStatus2 == NACK) begin
         dataPacketStruck.targetAddressStatus = NACK;
         detect_stop();
+        drive_scl(1);                                  // [NEW] never leave SCL held
         return;
       end
 
@@ -122,6 +127,7 @@ interface i3c_target_driver_bfm(input pclk,
     end else begin
       detect_stop();
     end
+    drive_scl(1);                                      // [NEW] never leave SCL held (e.g. STOP seen while stretching)
   endtask: drive_data
 
 
@@ -280,12 +286,23 @@ interface i3c_target_driver_bfm(input pclk,
   endtask: sample_operation
 
 
+  // [NEW] clock stretching: called right after the falling edge of the ACK clock, while SCL is low.
+  // The target keeps SCL low for stretch_clks pclk, then releases it (pull-up raises it).
+  task stretch_scl();
+    if(stretch_clks > 0) begin
+      drive_scl(0);
+      repeat(stretch_clks) @(posedge pclk);
+      drive_scl(1);
+    end
+  endtask: stretch_scl
+
   task driveAddressAck(input bit ack);
     state = ACK_NACK;
     detectEdge_scl(NEGEDGE);
     drive_sda(ack);
     detectEdge_scl(NEGEDGE);
     drive_sda(1);
+    stretch_scl();                                   // [NEW]
   endtask: driveAddressAck
 
 
@@ -324,6 +341,7 @@ interface i3c_target_driver_bfm(input pclk,
     drive_sda(ack);
     detectEdge_scl(NEGEDGE);
     drive_sda(1);
+    stretch_scl();                                   // [NEW]
   endtask: driveWdataAck
 
 
@@ -349,6 +367,7 @@ interface i3c_target_driver_bfm(input pclk,
     detectEdge_scl(POSEDGE);
     ack     = sda_i;
     detectEdge_scl(NEGEDGE);
+    stretch_scl();                                   // [NEW]
   endtask :sample_ack
 
 
@@ -412,3 +431,4 @@ interface i3c_target_driver_bfm(input pclk,
 endinterface : i3c_target_driver_bfm
 
 `endif
+

@@ -6,6 +6,8 @@ class i3c_env_config extends uvm_object;
 
    bit has_scoreboard = 1;
    bit has_virtual_sequencer = 1;
+   // [NEW] DUT-aware scoreboard (APB intent vs I2C bus), used by the DUT tests
+   bit has_dut_scoreboard = 0;
    int no_of_controllers;
    int no_of_targets;
    i3c_controller_agent_config i3c_controller_agent_cfg_h[];
@@ -29,5 +31,6 @@ function void i3c_env_config::do_print(uvm_printer printer);
 endfunction : do_print
 
 `endif
+
 
 

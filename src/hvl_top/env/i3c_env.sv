@@ -11,6 +11,7 @@ class i3c_env extends uvm_env;
   i3c_virtual_sequencer i3c_virtual_seqr_h;
   i3c_env_config i3c_env_cfg_h;
   i3c_scoreboard i3c_scoreboard_h;
+  dut_scoreboard dut_scoreboard_h;   // [NEW]
 
   // APB environment and RAL handles
   apb_master_agent apb_master_agent_h;
@@ -75,6 +76,11 @@ function void i3c_env::build_phase(uvm_phase phase);
         "i3c_scoreboard_h", this);
   end
 
+  // [NEW] DUT-aware scoreboard
+  if (i3c_env_cfg_h.has_dut_scoreboard) begin
+    dut_scoreboard_h = dut_scoreboard::type_id::create("dut_scoreboard_h", this);
+  end
+
   // Create APB environment
   apb_master_agent_h =
     apb_master_agent::type_id::create("apb_master_agent_h", this);
@@ -124,6 +130,16 @@ function void i3c_env::connect_phase(uvm_phase phase);
     end
   end
 
+  // [NEW] DUT-aware scoreboard connections
+  if (i3c_env_cfg_h.has_dut_scoreboard) begin
+    apb_master_agent_h.apb_master_mon_proxy_h.apb_master_analysis_port.connect(
+      dut_scoreboard_h.apb_fifo.analysis_export);
+    i3c_target_agent_h[0].i3c_target_mon_proxy_h.target_analysis_port.connect(
+      dut_scoreboard_h.tgt_fifo.analysis_export);
+    i3c_controller_agent_h[0].i3c_controller_mon_proxy_h.controller_analysis_port.connect(
+      dut_scoreboard_h.ctrl_fifo.analysis_export);
+  end
+
   // Connect RAL to APB master sequencer
   reg_model.default_map.set_sequencer(
     apb_master_agent_h.apb_master_seqr_h,
@@ -136,5 +152,6 @@ function void i3c_env::connect_phase(uvm_phase phase);
 endfunction : connect_phase
 
 `endif
+
 
 

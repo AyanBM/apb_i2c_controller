@@ -23,8 +23,10 @@ class dut_base_test extends i3c_base_test;
   localparam bit [I2C_MAX_ADDRESS_WIDTH-1:0] SELF10 = 10'h1B3;
   localparam bit [I2C_MAX_ADDRESS_WIDTH-1:0] WRONG7 = 10'h011;  // nobody answers here
 
+  localparam bit [7:0] RD_BYTE = 8'h3C;   // byte a DUT master reads from the VIP target
+
   // IRQ_STATUS bits
-  localparam int IRQ_NACK = 4, IRQ_ILLEGAL = 5, IRQ_RX_EMPTY = 7;
+  localparam int IRQ_SCL_HUNG = 2, IRQ_NACK = 4, IRQ_ILLEGAL = 5, IRQ_RX_EMPTY = 7;
 
   i2c_reg_block rm;
   uvm_tlm_analysis_fifo #(i3c_target_tx)     tgt_mon_fifo;
@@ -86,7 +88,8 @@ endfunction : connect_phase
 
 function void dut_base_test::setup_env_cfg();
   super.setup_env_cfg();
-  i3c_env_cfg_h.has_scoreboard = 0;   // VIP-to-VIP scoreboard does not apply to DUT tests
+  i3c_env_cfg_h.has_scoreboard     = 0;   // VIP-to-VIP scoreboard does not apply to DUT tests
+  i3c_env_cfg_h.has_dut_scoreboard = 1;   // DUT-aware scoreboard (APB intent vs I2C bus)
 endfunction : setup_env_cfg
 
 // The controller BFM needs a real SCL for the DUT (2FF synchronizer + glitch filter):
@@ -103,6 +106,10 @@ function void dut_base_test::setup_target_agent_cfg();
   foreach(i3c_env_cfg_h.i3c_target_agent_cfg_h[i]) begin
     i3c_env_cfg_h.i3c_target_agent_cfg_h[i].targetAddress = TGT7;
     i3c_env_cfg_h.i3c_target_agent_cfg_h[i].addressMode   = I2C_ADDR_7BIT;
+    // The target BFM does NOT use the readData of the sequence item: on a read it sends the bytes
+    // written earlier to it (targetFIFOMemory) or else cfg.defaultReadData. So the byte the DUT
+    // reads is set here.
+    i3c_env_cfg_h.i3c_target_agent_cfg_h[i].defaultReadData = RD_BYTE;
   end
 endfunction : setup_target_agent_cfg
 
@@ -110,7 +117,8 @@ task dut_base_test::run_phase(uvm_phase phase);
   phase.raise_objection(this, get_type_name());
   #(20 * 1us) ;               // reset + settle
   test_body();
-  #(5 * 1us);
+  #(20 * 1us);                // let the monitors publish the last transfer to the scoreboard
+  if(i3c_env_h.dut_scoreboard_h != null) err_cnt += i3c_env_h.dut_scoreboard_h.err_cnt;
   if(err_cnt == 0) `uvm_info(get_type_name(), "DUT TEST RESULT : PASS", UVM_NONE)
   else             `uvm_error(get_type_name(), $sformatf("DUT TEST RESULT : FAIL (%0d checks failed)", err_cnt))
   phase.drop_objection(this, get_type_name());
@@ -333,7 +341,7 @@ class dut_master_read7_test extends dut_base_test;
 
   task test_body();
     i3c_target_tx t;
-    bit [DATA_WIDTH-1:0] rdata[$] = '{8'h3C};
+    bit [DATA_WIDTH-1:0] rdata[$];
     bit [7:0] v;
     start_target_responder(rdata);
     config_dut(1'b1, 2'b00, 1'b0, TGT7, SELF7);
@@ -345,7 +353,7 @@ class dut_master_read7_test extends dut_base_test;
     end
     wait_rx_count(1);
     rd(rm.rx_fifo_reg, v);
-    check_eq("RX_FIFO data (master read)", v, 8'h3C);
+    check_eq("RX_FIFO data (master read)", v, RD_BYTE);
   endtask
 endclass : dut_master_read7_test
 
@@ -429,6 +437,10 @@ class dut_master_addr_nack_test extends dut_base_test;
     end
     check_eq("NACK flag set", v[IRQ_NACK], 1'b1);
 
+    // The core still sets the flag while it finishes the address phase and the STOP, so a clear
+    // issued the moment the flag appears is overwritten. Let the STOP finish first; the retry
+    // START + address byte takes far longer than this wait.
+    #(30 * 1us);
     clear_irq(4'b0010);                          // IRQ_CLEAR bit1 = NACK
     read_irq(v);
     check_eq("NACK flag right after clear", v[IRQ_NACK], 1'b0);
@@ -492,12 +504,13 @@ class dut_master_read10_test extends dut_base_test;
     foreach(i3c_env_cfg_h.i3c_target_agent_cfg_h[i]) begin
       i3c_env_cfg_h.i3c_target_agent_cfg_h[i].targetAddress = TGT10;
       i3c_env_cfg_h.i3c_target_agent_cfg_h[i].addressMode   = I2C_ADDR_10BIT;
+      i3c_env_cfg_h.i3c_target_agent_cfg_h[i].defaultReadData = 8'h4E;
     end
   endfunction
 
   task test_body();
     i3c_target_tx t;
-    bit [DATA_WIDTH-1:0] rdata[$] = '{8'h4E};
+    bit [DATA_WIDTH-1:0] rdata[$];
     bit [7:0] v;
     start_target_responder(rdata);
     config_dut(1'b1, 2'b00, 1'b1, TGT10, SELF10);
@@ -567,6 +580,219 @@ class dut_slave_read10_test extends dut_base_test;
     end
   endtask
 endclass : dut_slave_read10_test
+
+//==========================================================================================
+// TEST 8 : DUT master, 7-bit READ followed by WRITE to the SAME address
+//   Each command is sent only after the previous transfer finished, so the DUT does two
+//   separate transfers (START..STOP each) and not one transfer joined by a repeated start.
+//==========================================================================================
+class dut_master_read_then_write7_test extends dut_base_test;
+  `uvm_component_utils(dut_master_read_then_write7_test)
+  function new(string name = "dut_master_read_then_write7_test", uvm_component parent = null);
+    super.new(name, parent);
+  endfunction
+
+  task test_body();
+    i3c_target_tx t;
+    bit [DATA_WIDTH-1:0] none[$];
+    bit [7:0] v;
+    start_target_responder(none);
+    config_dut(1'b1, 2'b00, 1'b0, TGT7, SELF7);
+
+    // ---- 1st transfer : READ from TGT7 (target sends RD_BYTE)
+    push_rx();
+    get_target_tx(t);
+    if(t != null) begin
+      check_eq("READ  : address seen",   t.targetAddress, TGT7);
+      check_eq("READ  : operation (READ)", t.operation == READ, 1);
+    end
+    wait_rx_count(1);
+    rd(rm.rx_fifo_reg, v);
+    check_eq("READ  : RX_FIFO data", v, RD_BYTE);
+
+    // ---- 2nd transfer : WRITE to the same TGT7
+    push_tx(8'hA5);
+    get_target_tx(t);
+    if(t != null) begin
+      check_eq("WRITE : address seen",   t.targetAddress, TGT7);
+      check_eq("WRITE : operation (WRITE)", t.operation == WRITE, 1);
+      check_eq("WRITE : data count",     t.writeData.size(), 1);
+      if(t.writeData.size() > 0) check_eq("WRITE : data[0]", t.writeData[0], 8'hA5);
+    end
+  endtask
+endclass : dut_master_read_then_write7_test
+
+//==========================================================================================
+// TEST 9 : DUT master, 7-bit WRITE then READ from the SAME address, read data must equal
+//          the written data.
+//   The target BFM keeps every byte it receives in an internal FIFO (targetFIFOMemory) and
+//   sends those bytes back on the next read, so the VIP acts like a small memory/loopback.
+//   Result checked: byte written by the DUT == byte the DUT reads back into its RX FIFO.
+//==========================================================================================
+class dut_master_write_then_read7_test extends dut_base_test;
+  `uvm_component_utils(dut_master_write_then_read7_test)
+  function new(string name = "dut_master_write_then_read7_test", uvm_component parent = null);
+    super.new(name, parent);
+  endfunction
+
+  task test_body();
+    i3c_target_tx t;
+    bit [DATA_WIDTH-1:0] none[$];
+    bit [7:0] wdata = 8'hA5;
+    bit [7:0] v;
+    start_target_responder(none);
+    config_dut(1'b1, 2'b00, 1'b0, TGT7, SELF7);
+
+    // ---- WRITE wdata to TGT7
+    push_tx(wdata);
+    get_target_tx(t);
+    if(t != null) begin
+      check_eq("WRITE : address seen",      t.targetAddress, TGT7);
+      check_eq("WRITE : operation (WRITE)", t.operation == WRITE, 1);
+      if(t.writeData.size() > 0) check_eq("WRITE : data[0] on the bus", t.writeData[0], wdata);
+    end
+
+    // ---- READ back from the same TGT7 (after the write transfer finished)
+    push_rx();
+    get_target_tx(t);
+    if(t != null) begin
+      check_eq("READ  : address seen",     t.targetAddress, TGT7);
+      check_eq("READ  : operation (READ)", t.operation == READ, 1);
+    end
+    wait_rx_count(1);
+    rd(rm.rx_fifo_reg, v);
+    check_eq("READ  : data read back == data written", v, wdata);
+  endtask
+endclass : dut_master_write_then_read7_test
+
+//==========================================================================================
+// CLOCK STRETCHING (the target holds SCL low after every ACK bit)
+//   The target BFM stretches for cfg.stretchClks pclk (20 ns each) after the address ACK, after
+//   every write-data ACK and after every master ACK of a read byte.
+//==========================================================================================
+
+//------------------------------------------------------------------------------------------
+// TEST 10 : DUT master write, target stretches SCL. The DUT must wait and still deliver the
+//           correct address and data. Timing check: the transfer must take at least as long
+//           as the stretching added (2 stretch points: address ACK + data ACK).
+//------------------------------------------------------------------------------------------
+class dut_master_write_stretch7_test extends dut_base_test;
+  `uvm_component_utils(dut_master_write_stretch7_test)
+  localparam int STRETCH_CLKS = 500;                 // 500 x 20 ns = 10 us per stretch point
+  function new(string name = "dut_master_write_stretch7_test", uvm_component parent = null);
+    super.new(name, parent);
+  endfunction
+
+  function void setup_target_agent_cfg();
+    super.setup_target_agent_cfg();
+    foreach(i3c_env_cfg_h.i3c_target_agent_cfg_h[i])
+      i3c_env_cfg_h.i3c_target_agent_cfg_h[i].stretchClks = STRETCH_CLKS;
+  endfunction
+
+  task test_body();
+    i3c_target_tx t;
+    bit [DATA_WIDTH-1:0] none[$];
+    time t0, t1;
+    start_target_responder(none);
+    config_dut(1'b1, 2'b00, 1'b0, TGT7, SELF7);
+    t0 = $time;
+    push_tx(8'hA5);
+    get_target_tx(t);
+    t1 = $time;
+    if(t != null) begin
+      check_eq("stretched WRITE : address seen",   t.targetAddress, TGT7);
+      check_eq("stretched WRITE : operation (WRITE)", t.operation == WRITE, 1);
+      check_eq("stretched WRITE : data count",     t.writeData.size(), 1);
+      if(t.writeData.size() > 0) check_eq("stretched WRITE : data[0]", t.writeData[0], 8'hA5);
+    end
+    `uvm_info(get_type_name(), $sformatf("transfer time with stretching = %0t", t1 - t0), UVM_NONE)
+    check_eq("transfer lasted at least the added stretch time (1=yes)",
+             (t1 - t0) >= (2 * STRETCH_CLKS * 20ns), 1);
+  endtask
+endclass : dut_master_write_stretch7_test
+
+
+//------------------------------------------------------------------------------------------
+// TEST 11 : DUT master read, target stretches SCL. Read data must still arrive intact.
+//------------------------------------------------------------------------------------------
+class dut_master_read_stretch7_test extends dut_base_test;
+  `uvm_component_utils(dut_master_read_stretch7_test)
+  localparam int STRETCH_CLKS = 500;
+  function new(string name = "dut_master_read_stretch7_test", uvm_component parent = null);
+    super.new(name, parent);
+  endfunction
+
+  function void setup_target_agent_cfg();
+    super.setup_target_agent_cfg();
+    foreach(i3c_env_cfg_h.i3c_target_agent_cfg_h[i])
+      i3c_env_cfg_h.i3c_target_agent_cfg_h[i].stretchClks = STRETCH_CLKS;
+  endfunction
+
+  task test_body();
+    i3c_target_tx t;
+    bit [DATA_WIDTH-1:0] none[$];
+    bit [7:0] v;
+    start_target_responder(none);
+    config_dut(1'b1, 2'b00, 1'b0, TGT7, SELF7);
+    push_rx();
+    get_target_tx(t);
+    if(t != null) begin
+      check_eq("stretched READ : address seen",   t.targetAddress, TGT7);
+      check_eq("stretched READ : operation (READ)", t.operation == READ, 1);
+    end
+    wait_rx_count(1);
+    rd(rm.rx_fifo_reg, v);
+    check_eq("stretched READ : RX_FIFO data", v, RD_BYTE);
+  endtask
+endclass : dut_master_read_stretch7_test
+
+
+//------------------------------------------------------------------------------------------
+// TEST 12 : stretch longer than the DUT's SCL timeout -> SCL_HUNG (IRQ_STATUS bit2).
+//   SCL timeout registers 0x03..0x05 = 24-bit count of pclk cycles SCL may stay low.
+//   Timeout 4000 pclk (80 us) is longer than a normal SCL low phase; the target stretches 60000
+//   pclk (1.2 ms). The DUT behaviour after the hang (recovery) is not modelled, so the
+//   scoreboard is off for this test and only the flag is checked.
+//------------------------------------------------------------------------------------------
+class dut_master_scl_hung_test extends dut_base_test;
+  `uvm_component_utils(dut_master_scl_hung_test)
+  localparam int          STRETCH_CLKS = 60000;
+  localparam bit [23:0]   SCL_TIMEOUT  = 24'd4000;
+  function new(string name = "dut_master_scl_hung_test", uvm_component parent = null);
+    super.new(name, parent);
+  endfunction
+
+  function void setup_env_cfg();
+    super.setup_env_cfg();
+    i3c_env_cfg_h.has_dut_scoreboard = 0;
+  endfunction
+
+  function void setup_target_agent_cfg();
+    super.setup_target_agent_cfg();
+    foreach(i3c_env_cfg_h.i3c_target_agent_cfg_h[i])
+      i3c_env_cfg_h.i3c_target_agent_cfg_h[i].stretchClks = STRETCH_CLKS;
+  endfunction
+
+  task test_body();
+    bit [DATA_WIDTH-1:0] none[$];
+    bit [7:0] v;
+    bit hung = 0;
+    start_target_responder(none);
+    // timeouts first: all config is applied in order, before the transfer starts
+    wr(rm.scl_timeout2, SCL_TIMEOUT[23:16]);
+    wr(rm.scl_timeout1, SCL_TIMEOUT[15:8]);
+    wr(rm.scl_timeout0, SCL_TIMEOUT[7:0]);
+    config_dut(1'b1, 2'b00, 1'b0, TGT7, SELF7);
+    push_tx(8'hA5);
+    repeat(3000) begin
+      read_irq(v);
+      if(v[IRQ_SCL_HUNG]) begin hung = 1; break; end
+      #(1 * 1us);
+    end
+    check_eq("SCL_HUNG flag (bit2) set after long stretch", hung, 1);
+    #(1500 * 1us);                  // let the target release SCL before the test ends
+  endtask
+endclass : dut_master_scl_hung_test
 
 `endif
 

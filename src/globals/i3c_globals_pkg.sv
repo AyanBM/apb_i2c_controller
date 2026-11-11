@@ -33,6 +33,8 @@ parameter int I2C_MAX_ADDRESS_WIDTH = 10;
   parameter TARGET1_ADDRESS = 7'b110_1100;  // 7'h6C 
   parameter TARGET2_ADDRESS = 7'b111_1100;  // 7'h7C
   parameter TARGET3_ADDRESS = 7'b100_1100;  // 7'h4C
+  // [NEW] 10-bit address used by the 10-bit tests (target cfg and controller seq must match)
+  parameter bit [I2C_MAX_ADDRESS_WIDTH-1:0] TARGET0_ADDRESS_10BIT = 10'h2A5;
   
   // The parameter for enabling tristate buffer
   parameter bit TRISTATE_BUF_ON  = 1;
@@ -102,6 +104,8 @@ i2c_address_mode_e addressMode;
     bit [I2C_MAX_ADDRESS_WIDTH-1:0] targetAddress;
 i2c_address_mode_e addressMode;
     bit [DATA_WIDTH-1:0]defaultReadData;
+    // [NEW] target holds SCL low this many pclk after each ACK bit (clock stretching). 0 = off
+    int stretchClks;
   } i3c_transfer_cfg_s;
   
   // enum: i3c_fsm_state_e
@@ -148,6 +152,4 @@ i2c_address_mode_e addressMode;
 endpackage : i3c_globals_pkg 
 
 `endif
-
-
 

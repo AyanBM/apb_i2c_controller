@@ -27,6 +27,7 @@ package i3c_env_pkg;
   // Virtual sequencer and scoreboard
   `include "i3c_virtual_sequencer.sv"
   `include "i3c_scoreboard.sv"
+ // `include "dut_scoreboard.sv"
  
 
   // Environment
@@ -35,4 +36,5 @@ package i3c_env_pkg;
 endpackage : i3c_env_pkg
 
 `endif
+
 
