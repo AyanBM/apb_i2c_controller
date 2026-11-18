@@ -1,0 +1,29 @@
+UVM_INFO ../../src/hvl_top/env/dut_scoreboard.sv(181) @ 224220000: uvm_test_top.i3c_env_h.dut_scoreboard_h [DUT_SCB] MODE applied: role=MASTER speed=0 addr10=0
+UVM_INFO ../../src/hvl_top/env/dut_scoreboard.sv(158) @ 224221000: uvm_test_top.i3c_env_h.dut_scoreboard_h [DUT_SCB] MATCH    DUT address format (1=10-bit) = 0x0
+UVM_INFO ../../src/hvl_top/env/dut_scoreboard.sv(158) @ 224221000: uvm_test_top.i3c_env_h.dut_scoreboard_h [DUT_SCB] MATCH    DUT address = 0x68
+UVM_INFO ../../src/hvl_top/env/dut_scoreboard.sv(158) @ 224221000: uvm_test_top.i3c_env_h.dut_scoreboard_h [DUT_SCB] MATCH    address ACK (1=ACK) = 0x1
+UVM_INFO ../../src/hvl_top/env/dut_scoreboard.sv(158) @ 224221000: uvm_test_top.i3c_env_h.dut_scoreboard_h [DUT_SCB] MATCH    operation (1=READ) = 0x1
+UVM_INFO ../../src/hvl_top/test/i2c_dut_tests.sv(254) @ 224221000: uvm_test_top [dut_master_read_then_write7_test] CHECK OK     READ  : address seen = 0x68
+UVM_INFO ../../src/hvl_top/test/i2c_dut_tests.sv(254) @ 224221000: uvm_test_top [dut_master_read_then_write7_test] CHECK OK     READ  : operation (READ) = 0x1
+UVM_INFO ../../src/hvl_top/env/dut_scoreboard.sv(158) @ 224320000: uvm_test_top.i3c_env_h.dut_scoreboard_h [DUT_SCB] MATCH    RX_FIFO byte = 0x3c
+UVM_INFO ../../src/hvl_top/test/i2c_dut_tests.sv(254) @ 224330000: uvm_test_top [dut_master_read_then_write7_test] CHECK OK     READ  : RX_FIFO data = 0x3c
+UVM_INFO ../../src/hvl_top/env/dut_scoreboard.sv(158) @ 340481000: uvm_test_top.i3c_env_h.dut_scoreboard_h [DUT_SCB] MATCH    DUT address format (1=10-bit) = 0x0
+UVM_INFO ../../src/hvl_top/env/dut_scoreboard.sv(158) @ 340481000: uvm_test_top.i3c_env_h.dut_scoreboard_h [DUT_SCB] MATCH    DUT address = 0x68
+UVM_ERROR ../../src/hvl_top/env/dut_scoreboard.sv(155) @ 340481000: uvm_test_top.i3c_env_h.dut_scoreboard_h [DUT_SCB] MISMATCH address ACK (1=ACK) : got 0x0 expected 0x1
+UVM_INFO ../../src/hvl_top/env/dut_scoreboard.sv(316) @ 340481000: uvm_test_top.i3c_env_h.dut_scoreboard_h [DUT_SCB] address NACK on the bus: DUT keeps the command and will retry
+UVM_INFO ../../src/hvl_top/test/i2c_dut_tests.sv(254) @ 340481000: uvm_test_top [dut_master_read_then_write7_test] CHECK OK     WRITE : address seen = 0x68
+UVM_INFO ../../src/hvl_top/test/i2c_dut_tests.sv(254) @ 340481000: uvm_test_top [dut_master_read_then_write7_test] CHECK OK     WRITE : operation (WRITE) = 0x1
+UVM_ERROR ../../src/hvl_top/test/i2c_dut_tests.sv(251) @ 340481000: uvm_test_top [dut_master_read_then_write7_test] CHECK FAILED WRITE : data count : got 0x0 expected 0x1
+UVM_ERROR ../../src/hvl_top/test/i2c_dut_tests.sv(123) @ 360481000: uvm_test_top [dut_master_read_then_write7_test] DUT TEST RESULT : FAIL (2 checks failed)
+UVM_INFO ../../src/hvl_top/env/dut_scoreboard.sv(416) @ 363481000: uvm_test_top.i3c_env_h.dut_scoreboard_h [DUT_SCB] a command was still active at the end (retrying after NACK)
+UVM_INFO ../../src/hvl_top/env/dut_scoreboard.sv(417) @ 363481000: uvm_test_top.i3c_env_h.dut_scoreboard_h [DUT_SCB] SUMMARY : apb=9 target_tx=2 controller_tx=2 nack=1 checks=8 errors=1
+Number of demoted UVM_FATAL reports  :    0
+Number of demoted UVM_ERROR reports  :    0
+Number of demoted UVM_WARNING reports:    0
+Number of caught UVM_FATAL reports   :    0
+Number of caught UVM_ERROR reports   :    0
+Number of caught UVM_WARNING reports :    0
+UVM_WARNING :    0
+UVM_ERROR :    3
+UVM_FATAL :    0
+[DUT_SCB]    12

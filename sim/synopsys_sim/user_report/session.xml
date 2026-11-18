@@ -1,6 +1,6 @@
-<session version="1.1" release="Q-2020.03-SP2-8" timestp="2026-11-04 15:14:04 GMT">
+<session version="1.1" release="Q-2020.03-SP2-8" timestp="2026-11-18 07:00:46 GMT">
   <info>
-    <attr name="datetime" value="Wed Nov  4 20:44:08 2026
+    <attr name="datetime" value="Wed Nov 18 12:30:49 2026
 "/>
     <attr name="command" value="urg -report user_report -dir simv.vdb"/>
   </info>

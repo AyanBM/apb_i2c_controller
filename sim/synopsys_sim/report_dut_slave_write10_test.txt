@@ -1,0 +1,18 @@
+UVM_INFO ../../src/hvl_top/env/dut_scoreboard.sv(181) @ 97880000: uvm_test_top.i3c_env_h.dut_scoreboard_h [DUT_SCB] MODE applied: role= SLAVE speed=0 addr10=1
+UVM_INFO ../../src/hvl_top/env/dut_scoreboard.sv(158) @ 97880000: uvm_test_top.i3c_env_h.dut_scoreboard_h [DUT_SCB] MATCH    DUT (slave) address ACK (1=ACK) = 0x1
+UVM_INFO ../../src/hvl_top/test/i2c_dut_tests.sv(254) @ 99150000: uvm_test_top [dut_slave_write10_test] CHECK OK     DUT ACKed 1st address byte = 0x1
+UVM_INFO ../../src/hvl_top/test/i2c_dut_tests.sv(254) @ 99150000: uvm_test_top [dut_slave_write10_test] CHECK OK     DUT ACKed 2nd address byte = 0x1
+UVM_ERROR ../../src/hvl_top/test/i2c_dut_tests.sv(251) @ 99270000: uvm_test_top [dut_slave_write10_test] CHECK FAILED RX_FIFO data (10-bit slave write) : got 0xb3 expected 0x2d
+UVM_ERROR ../../src/hvl_top/test/i2c_dut_tests.sv(123) @ 119270000: uvm_test_top [dut_slave_write10_test] DUT TEST RESULT : FAIL (1 checks failed)
+UVM_WARNING ../../src/hvl_top/env/dut_scoreboard.sv(412) @ 122270000: uvm_test_top.i3c_env_h.dut_scoreboard_h [DUT_SCB] 1 RX_FIFO read(s) never matched a bus byte
+UVM_INFO ../../src/hvl_top/env/dut_scoreboard.sv(417) @ 122270000: uvm_test_top.i3c_env_h.dut_scoreboard_h [DUT_SCB] SUMMARY : apb=8 target_tx=1 controller_tx=1 nack=0 checks=1 errors=0
+Number of demoted UVM_FATAL reports  :    0
+Number of demoted UVM_ERROR reports  :    0
+Number of demoted UVM_WARNING reports:    0
+Number of caught UVM_FATAL reports   :    0
+Number of caught UVM_ERROR reports   :    0
+Number of caught UVM_WARNING reports :    0
+UVM_WARNING :    1
+UVM_ERROR :    2
+UVM_FATAL :    0
+[DUT_SCB]     4

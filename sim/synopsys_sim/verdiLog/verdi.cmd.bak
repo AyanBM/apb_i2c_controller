@@ -1,0 +1,5 @@
+wvCreateWindow
+wvSetPosition -win $_nWave2 {("G1" 0)}
+wvOpenFile -win $_nWave2 \
+           {/fetools/work_area/frontend/Batch_10/ayan/PROJECTS/apb_i2c_controller/sim/synopsys_sim/novas.fsdb}
+debExit

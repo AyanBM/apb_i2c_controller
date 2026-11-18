@@ -149,7 +149,22 @@ i2c_address_mode_e addressMode;
     NACK = 1'b1
   } acknowledge_e;
 
+  //-----------------------------------------------------------------------
+  // SCL pulse-width measurements (ns). Written by the monitor in hdl_top,
+  // read by the speed tests. A package cannot use hierarchical references,
+  // so the data is shared through these package variables.
+  //   scl_period_q : rising edge to next rising edge
+  //   scl_high_q   : rising edge to next falling edge
+  //   scl_low_q    : falling edge to next rising edge
+  //-----------------------------------------------------------------------
+  real scl_period_q[$];
+  real scl_high_q[$];
+  real scl_low_q[$];
+
 endpackage : i3c_globals_pkg 
 
 `endif
+
+
+
 

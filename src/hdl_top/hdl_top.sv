@@ -102,6 +102,31 @@ module hdl_top;
  // APB master agent BFM (drives the DUT register interface)
  apb_master_agent_bfm apb_master_agent_bfm_h(apb_intf);
 
+ //-------------------------------------------------------
+ // [MONITOR] SCL pulse-width monitor (passive, only measures the bus).
+ // Times are in ns. Results go to the queues scl_period_q / scl_high_q / scl_low_q
+ // declared in i3c_globals_pkg (the tests read them from there).
+ //-------------------------------------------------------
+ real scl_t_rise, scl_t_fall;
+ bit  scl_have_rise = 0, scl_have_fall = 0;
+
+ always @(posedge I3C_SCL) begin : scl_rise_p
+   real t;
+   t = $realtime;
+   if(scl_have_fall) scl_low_q.push_back(t - scl_t_fall);
+   if(scl_have_rise) scl_period_q.push_back(t - scl_t_rise);
+   scl_t_rise = t;
+   scl_have_rise = 1;
+ end
+
+ always @(negedge I3C_SCL) begin : scl_fall_p
+   real t;
+   t = $realtime;
+   if(scl_have_rise) scl_high_q.push_back(t - scl_t_rise);
+   scl_t_fall = t;
+   scl_have_fall = 1;
+ end
+
 `ifdef WITH_DUT
  //-------------------------------------------------------
  // DUT : APB4 I2C master/slave controller
@@ -110,7 +135,7 @@ module hdl_top;
  // clk period is 20ns = 50MHz -> PCLK_FREQ_MHZ = 50
  //-------------------------------------------------------
  wire [7:0] dut_prdata;
- apb4_i2c_top #(.PCLK_FREQ_MHZ(50)) dut (
+ apb4_i2c_top #(.PCLK_FREQ_MHZ(50), .DATA_WIDTH(8)) dut (
    .PCLK    (clk),
    .PRESETn (rst),
    .PADDR   (apb_intf.paddr[4:0]),
@@ -145,3 +170,4 @@ module hdl_top;
 endmodule : hdl_top
 
 `endif
+

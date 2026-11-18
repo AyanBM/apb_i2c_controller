@@ -1,0 +1,188 @@
+{
+    "_vcs_DPI_package": [
+        "_vcs_DPI_package",
+        "uM9F1",
+        "module",
+        1
+    ],
+    "fsdbDumpDesign$$": [
+        "fsdbDumpDesign0x240x24",
+        "cfx32",
+        "module",
+        2
+    ],
+    "vcs_paramclassrepository": [
+        "vcs_paramclassrepository",
+        "hEeZs",
+        "module",
+        3
+    ],
+    "_vcs_unit__3977415275": [
+        "_vcs_unit__3977415275",
+        "V8tnf",
+        "module",
+        4
+    ],
+    "std": [
+        "std",
+        "reYIK",
+        "module",
+        5
+    ],
+    "uvm_pkg": [
+        "uvm_pkg",
+        "zr7M1",
+        "module",
+        6
+    ],
+    "_vcs_msglog": [
+        "_vcs_msglog",
+        "zQBzV",
+        "module",
+        7
+    ],
+    "uvm_custom_install_recording": [
+        "uvm_custom_install_recording",
+        "nhiwz",
+        "module",
+        8
+    ],
+    "uvm_custom_install_verdi_recording": [
+        "uvm_custom_install_verdi_recording",
+        "EbjT3",
+        "module",
+        9
+    ],
+    "i3c_globals_pkg": [
+        "i3c_globals_pkg",
+        "hTpej",
+        "module",
+        10
+    ],
+    "apb_global_pkg": [
+        "apb_global_pkg",
+        "Qqjd9",
+        "module",
+        11
+    ],
+    "apb_master_pkg": [
+        "apb_master_pkg",
+        "uBHNZ",
+        "module",
+        12
+    ],
+    "i3c_controller_pkg": [
+        "i3c_controller_pkg",
+        "VSxJU",
+        "module",
+        13
+    ],
+    "i3c_target_pkg": [
+        "i3c_target_pkg",
+        "Paa64",
+        "module",
+        14
+    ],
+    "i3c_controller_seq_pkg": [
+        "i3c_controller_seq_pkg",
+        "ScD2U",
+        "module",
+        15
+    ],
+    "i3c_target_seq_pkg": [
+        "i3c_target_seq_pkg",
+        "x5GZa",
+        "module",
+        16
+    ],
+    "i3c_env_pkg": [
+        "i3c_env_pkg",
+        "rJwF4",
+        "module",
+        17
+    ],
+    "i3c_virtual_seq_pkg": [
+        "i3c_virtual_seq_pkg",
+        "AD8Dp",
+        "module",
+        18
+    ],
+    "i3c_test_pkg": [
+        "i3c_test_pkg",
+        "pp8Yf",
+        "module",
+        19
+    ],
+    "i3c_if": [
+        "i3c_if",
+        "vgut5",
+        "module",
+        20
+    ],
+    "apb_if": [
+        "apb_if",
+        "d9vZk",
+        "module",
+        21
+    ],
+    "apb_master_driver_bfm": [
+        "apb_master_driver_bfm",
+        "sfMtz",
+        "module",
+        22
+    ],
+    "apb_master_monitor_bfm": [
+        "apb_master_monitor_bfm",
+        "km5Mf",
+        "module",
+        23
+    ],
+    "i3c_controller_driver_bfm": [
+        "i3c_controller_driver_bfm",
+        "cjUFa",
+        "module",
+        24
+    ],
+    "i3c_controller_monitor_bfm": [
+        "i3c_controller_monitor_bfm",
+        "TTVUm",
+        "module",
+        25
+    ],
+    "i3c_target_driver_bfm": [
+        "i3c_target_driver_bfm",
+        "eQSHt",
+        "module",
+        26
+    ],
+    "i3c_target_monitor_bfm": [
+        "i3c_target_monitor_bfm",
+        "geJSQ",
+        "module",
+        27
+    ],
+    "apb4_i2c_top": [
+        "apb4_i2c_top",
+        "EYkqs",
+        "module",
+        28
+    ],
+    "hdl_top": [
+        "hdl_top",
+        "Svwsh",
+        "module",
+        29
+    ],
+    "hvl_top": [
+        "hvl_top",
+        "hLrg8",
+        "module",
+        30
+    ],
+    "...MASTER...": [
+        "SIM",
+        "amcQw",
+        "module",
+        31
+    ]
+}

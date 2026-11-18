@@ -1,0 +1,77 @@
+dut_master_write7_test/dut_master_write7_test.log:12768:UVM_INFO ../../src/hvl_top/test/i2c_dut_tests.sv(246) @ 224221000: uvm_test_top [dut_master_write7_test] CHECK OK     target address seen = 0x68
+dut_master_write7_test/dut_master_write7_test.log:12769:UVM_INFO ../../src/hvl_top/test/i2c_dut_tests.sv(246) @ 224221000: uvm_test_top [dut_master_write7_test] CHECK OK     operation seen (WRITE) = 0x1
+dut_master_write7_test/dut_master_write7_test.log:12770:UVM_INFO ../../src/hvl_top/test/i2c_dut_tests.sv(246) @ 224221000: uvm_test_top [dut_master_write7_test] CHECK OK     write data count = 0x1
+dut_master_write7_test/dut_master_write7_test.log:12771:UVM_INFO ../../src/hvl_top/test/i2c_dut_tests.sv(246) @ 224221000: uvm_test_top [dut_master_write7_test] CHECK OK     write data[0] = 0xa5
+dut_master_write7_test/dut_master_write7_test.log:13185:UVM_INFO ../../src/hvl_top/test/i2c_dut_tests.sv(114) @ 229221000: uvm_test_top [dut_master_write7_test] DUT TEST RESULT : PASS
+dut_master_write7_test/dut_master_write7_test.log:13366:Number of demoted UVM_FATAL reports  :    0
+dut_master_write7_test/dut_master_write7_test.log:13367:Number of demoted UVM_ERROR reports  :    0
+dut_master_write7_test/dut_master_write7_test.log:13369:Number of caught UVM_FATAL reports   :    0
+dut_master_write7_test/dut_master_write7_test.log:13370:Number of caught UVM_ERROR reports   :    0
+dut_master_write7_test/dut_master_write7_test.log:13379:UVM_ERROR :    0
+dut_master_write7_test/dut_master_write7_test.log:13380:UVM_FATAL :    0
+dut_master_read7_test/dut_master_read7_test.log:12740:UVM_INFO ../../src/hvl_top/test/i2c_dut_tests.sv(252) @ 224221000: uvm_test_top [dut_master_read7_test] CHECK OK     target address seen = 0x68
+dut_master_read7_test/dut_master_read7_test.log:12741:UVM_INFO ../../src/hvl_top/test/i2c_dut_tests.sv(252) @ 224221000: uvm_test_top [dut_master_read7_test] CHECK OK     operation seen (READ) = 0x1
+dut_master_read7_test/dut_master_read7_test.log:13216:UVM_INFO ../../src/hvl_top/test/i2c_dut_tests.sv(252) @ 224330000: uvm_test_top [dut_master_read7_test] CHECK OK     RX_FIFO data (master read) = 0x3c
+dut_master_read7_test/dut_master_read7_test.log:13467:UVM_INFO ../../src/hvl_top/test/i2c_dut_tests.sv(120) @ 229330000: uvm_test_top [dut_master_read7_test] DUT TEST RESULT : PASS
+dut_master_read7_test/dut_master_read7_test.log:13648:Number of demoted UVM_FATAL reports  :    0
+dut_master_read7_test/dut_master_read7_test.log:13649:Number of demoted UVM_ERROR reports  :    0
+dut_master_read7_test/dut_master_read7_test.log:13651:Number of caught UVM_FATAL reports   :    0
+dut_master_read7_test/dut_master_read7_test.log:13652:Number of caught UVM_ERROR reports   :    0
+dut_master_read7_test/dut_master_read7_test.log:13661:UVM_ERROR :    0
+dut_master_read7_test/dut_master_read7_test.log:13662:UVM_FATAL :    0
+dut_master_addr_nack_test/dut_master_addr_nack_test.log:22391:UVM_INFO ../../src/hvl_top/test/i2c_dut_tests.sv(252) @ 122170000: uvm_test_top [dut_master_addr_nack_test] CHECK OK     NACK flag set = 0x1
+dut_master_addr_nack_test/dut_master_addr_nack_test.log:24409:UVM_INFO ../../src/hvl_top/test/i2c_dut_tests.sv(252) @ 152290000: uvm_test_top [dut_master_addr_nack_test] CHECK OK     NACK flag right after clear = 0x0
+dut_master_addr_nack_test/dut_master_addr_nack_test.log:44373:UVM_INFO ../../src/hvl_top/test/i2c_dut_tests.sv(252) @ 254110000: uvm_test_top [dut_master_addr_nack_test] CHECK OK     NACK again after retry = 0x1
+dut_master_addr_nack_test/dut_master_addr_nack_test.log:44624:UVM_INFO ../../src/hvl_top/test/i2c_dut_tests.sv(120) @ 259110000: uvm_test_top [dut_master_addr_nack_test] DUT TEST RESULT : PASS
+dut_master_addr_nack_test/dut_master_addr_nack_test.log:44805:Number of demoted UVM_FATAL reports  :    0
+dut_master_addr_nack_test/dut_master_addr_nack_test.log:44806:Number of demoted UVM_ERROR reports  :    0
+dut_master_addr_nack_test/dut_master_addr_nack_test.log:44808:Number of caught UVM_FATAL reports   :    0
+dut_master_addr_nack_test/dut_master_addr_nack_test.log:44809:Number of caught UVM_ERROR reports   :    0
+dut_master_addr_nack_test/dut_master_addr_nack_test.log:44818:UVM_ERROR :    0
+dut_master_addr_nack_test/dut_master_addr_nack_test.log:44819:UVM_FATAL :    0
+dut_master_write_stretch7_test/dut_master_write_stretch7_test.log:13142:UVM_INFO ../../src/hvl_top/env/dut_scoreboard.sv(181) @ 232100000: uvm_test_top.i3c_env_h.dut_scoreboard_h [DUT_SCB] MODE applied: role=MASTER speed=0 addr10=0
+dut_master_write_stretch7_test/dut_master_write_stretch7_test.log:13182:UVM_INFO ../../src/hvl_top/env/dut_scoreboard.sv(158) @ 232101000: uvm_test_top.i3c_env_h.dut_scoreboard_h [DUT_SCB] MATCH    DUT address format (1=10-bit) = 0x0
+dut_master_write_stretch7_test/dut_master_write_stretch7_test.log:13183:UVM_INFO ../../src/hvl_top/env/dut_scoreboard.sv(158) @ 232101000: uvm_test_top.i3c_env_h.dut_scoreboard_h [DUT_SCB] MATCH    DUT address = 0x68
+dut_master_write_stretch7_test/dut_master_write_stretch7_test.log:13184:UVM_INFO ../../src/hvl_top/env/dut_scoreboard.sv(158) @ 232101000: uvm_test_top.i3c_env_h.dut_scoreboard_h [DUT_SCB] MATCH    address ACK (1=ACK) = 0x1
+dut_master_write_stretch7_test/dut_master_write_stretch7_test.log:13185:UVM_INFO ../../src/hvl_top/env/dut_scoreboard.sv(158) @ 232101000: uvm_test_top.i3c_env_h.dut_scoreboard_h [DUT_SCB] MATCH    operation (1=WRITE) = 0x1
+dut_master_write_stretch7_test/dut_master_write_stretch7_test.log:13186:UVM_INFO ../../src/hvl_top/env/dut_scoreboard.sv(158) @ 232101000: uvm_test_top.i3c_env_h.dut_scoreboard_h [DUT_SCB] MATCH    write byte[0] on the bus = 0xa5
+dut_master_write_stretch7_test/dut_master_write_stretch7_test.log:13187:UVM_INFO ../../src/hvl_top/test/i2c_dut_tests.sv(254) @ 232101000: uvm_test_top [dut_master_write_stretch7_test] CHECK OK     stretched WRITE : address seen = 0x68
+dut_master_write_stretch7_test/dut_master_write_stretch7_test.log:13188:UVM_INFO ../../src/hvl_top/test/i2c_dut_tests.sv(254) @ 232101000: uvm_test_top [dut_master_write_stretch7_test] CHECK OK     stretched WRITE : operation (WRITE) = 0x1
+dut_master_write_stretch7_test/dut_master_write_stretch7_test.log:13189:UVM_INFO ../../src/hvl_top/test/i2c_dut_tests.sv(254) @ 232101000: uvm_test_top [dut_master_write_stretch7_test] CHECK OK     stretched WRITE : data count = 0x1
+dut_master_write_stretch7_test/dut_master_write_stretch7_test.log:13190:UVM_INFO ../../src/hvl_top/test/i2c_dut_tests.sv(254) @ 232101000: uvm_test_top [dut_master_write_stretch7_test] CHECK OK     stretched WRITE : data[0] = 0xa5
+dut_master_write_stretch7_test/dut_master_write_stretch7_test.log:13192:UVM_INFO ../../src/hvl_top/test/i2c_dut_tests.sv(254) @ 232101000: uvm_test_top [dut_master_write_stretch7_test] CHECK OK     transfer lasted at least the added stretch time (1=yes) = 0x1
+dut_master_write_stretch7_test/dut_master_write_stretch7_test.log:14356:UVM_INFO ../../src/hvl_top/test/i2c_dut_tests.sv(122) @ 252101000: uvm_test_top [dut_master_write_stretch7_test] DUT TEST RESULT : PASS
+dut_master_write_stretch7_test/dut_master_write_stretch7_test.log:14521:UVM_INFO ../../src/hvl_top/env/dut_scoreboard.sv(417) @ 255101000: uvm_test_top.i3c_env_h.dut_scoreboard_h [DUT_SCB] SUMMARY : apb=6 target_tx=1 controller_tx=1 nack=0 checks=5 errors=0
+dut_master_write_stretch7_test/dut_master_write_stretch7_test.log:14538:Number of demoted UVM_FATAL reports  :    0
+dut_master_write_stretch7_test/dut_master_write_stretch7_test.log:14539:Number of demoted UVM_ERROR reports  :    0
+dut_master_write_stretch7_test/dut_master_write_stretch7_test.log:14541:Number of caught UVM_FATAL reports   :    0
+dut_master_write_stretch7_test/dut_master_write_stretch7_test.log:14542:Number of caught UVM_ERROR reports   :    0
+dut_master_write_stretch7_test/dut_master_write_stretch7_test.log:14551:UVM_ERROR :    0
+dut_master_write_stretch7_test/dut_master_write_stretch7_test.log:14552:UVM_FATAL :    0
+dut_master_write_stretch7_test/dut_master_write_stretch7_test.log:14565:[DUT_SCB]     7
+dut_master_read_stretch7_test/dut_master_read_stretch7_test.log:13114:UVM_INFO ../../src/hvl_top/env/dut_scoreboard.sv(181) @ 232100000: uvm_test_top.i3c_env_h.dut_scoreboard_h [DUT_SCB] MODE applied: role=MASTER speed=0 addr10=0
+dut_master_read_stretch7_test/dut_master_read_stretch7_test.log:13154:UVM_INFO ../../src/hvl_top/env/dut_scoreboard.sv(158) @ 232101000: uvm_test_top.i3c_env_h.dut_scoreboard_h [DUT_SCB] MATCH    DUT address format (1=10-bit) = 0x0
+dut_master_read_stretch7_test/dut_master_read_stretch7_test.log:13155:UVM_INFO ../../src/hvl_top/env/dut_scoreboard.sv(158) @ 232101000: uvm_test_top.i3c_env_h.dut_scoreboard_h [DUT_SCB] MATCH    DUT address = 0x68
+dut_master_read_stretch7_test/dut_master_read_stretch7_test.log:13156:UVM_INFO ../../src/hvl_top/env/dut_scoreboard.sv(158) @ 232101000: uvm_test_top.i3c_env_h.dut_scoreboard_h [DUT_SCB] MATCH    address ACK (1=ACK) = 0x1
+dut_master_read_stretch7_test/dut_master_read_stretch7_test.log:13157:UVM_INFO ../../src/hvl_top/env/dut_scoreboard.sv(158) @ 232101000: uvm_test_top.i3c_env_h.dut_scoreboard_h [DUT_SCB] MATCH    operation (1=READ) = 0x1
+dut_master_read_stretch7_test/dut_master_read_stretch7_test.log:13158:UVM_INFO ../../src/hvl_top/test/i2c_dut_tests.sv(254) @ 232101000: uvm_test_top [dut_master_read_stretch7_test] CHECK OK     stretched READ : address seen = 0x68
+dut_master_read_stretch7_test/dut_master_read_stretch7_test.log:13159:UVM_INFO ../../src/hvl_top/test/i2c_dut_tests.sv(254) @ 232101000: uvm_test_top [dut_master_read_stretch7_test] CHECK OK     stretched READ : operation (READ) = 0x1
+dut_master_read_stretch7_test/dut_master_read_stretch7_test.log:13585:UVM_INFO ../../src/hvl_top/env/dut_scoreboard.sv(158) @ 232200000: uvm_test_top.i3c_env_h.dut_scoreboard_h [DUT_SCB] MATCH    RX_FIFO byte = 0x3c
+dut_master_read_stretch7_test/dut_master_read_stretch7_test.log:13635:UVM_INFO ../../src/hvl_top/test/i2c_dut_tests.sv(254) @ 232210000: uvm_test_top [dut_master_read_stretch7_test] CHECK OK     stretched READ : RX_FIFO data = 0x3c
+dut_master_read_stretch7_test/dut_master_read_stretch7_test.log:14636:UVM_INFO ../../src/hvl_top/test/i2c_dut_tests.sv(122) @ 252210000: uvm_test_top [dut_master_read_stretch7_test] DUT TEST RESULT : PASS
+dut_master_read_stretch7_test/dut_master_read_stretch7_test.log:14801:UVM_INFO ../../src/hvl_top/env/dut_scoreboard.sv(417) @ 255210000: uvm_test_top.i3c_env_h.dut_scoreboard_h [DUT_SCB] SUMMARY : apb=8 target_tx=1 controller_tx=1 nack=0 checks=5 errors=0
+dut_master_read_stretch7_test/dut_master_read_stretch7_test.log:14818:Number of demoted UVM_FATAL reports  :    0
+dut_master_read_stretch7_test/dut_master_read_stretch7_test.log:14819:Number of demoted UVM_ERROR reports  :    0
+dut_master_read_stretch7_test/dut_master_read_stretch7_test.log:14821:Number of caught UVM_FATAL reports   :    0
+dut_master_read_stretch7_test/dut_master_read_stretch7_test.log:14822:Number of caught UVM_ERROR reports   :    0
+dut_master_read_stretch7_test/dut_master_read_stretch7_test.log:14831:UVM_ERROR :    0
+dut_master_read_stretch7_test/dut_master_read_stretch7_test.log:14832:UVM_FATAL :    0
+dut_master_read_stretch7_test/dut_master_read_stretch7_test.log:14840:[DUT_SCB]     7
+dut_master_scl_hung_test/dut_master_scl_hung_test.log:38517:UVM_INFO ../../src/hvl_top/test/i2c_dut_tests.sv(254) @ 202910000: uvm_test_top [dut_master_scl_hung_test] CHECK OK     SCL_HUNG flag (bit2) set after long stretch = 0x1
+dut_master_scl_hung_test/dut_master_scl_hung_test.log:114524:UVM_INFO ../../src/hvl_top/test/i2c_dut_tests.sv(122) @ 1722910000: uvm_test_top [dut_master_scl_hung_test] DUT TEST RESULT : PASS
+dut_master_scl_hung_test/dut_master_scl_hung_test.log:114705:Number of demoted UVM_FATAL reports  :    0
+dut_master_scl_hung_test/dut_master_scl_hung_test.log:114706:Number of demoted UVM_ERROR reports  :    0
+dut_master_scl_hung_test/dut_master_scl_hung_test.log:114708:Number of caught UVM_FATAL reports   :    0
+dut_master_scl_hung_test/dut_master_scl_hung_test.log:114709:Number of caught UVM_ERROR reports   :    0
+dut_master_scl_hung_test/dut_master_scl_hung_test.log:114718:UVM_ERROR :    0
+dut_master_scl_hung_test/dut_master_scl_hung_test.log:114719:UVM_FATAL :    0

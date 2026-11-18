@@ -794,5 +794,219 @@ class dut_master_scl_hung_test extends dut_base_test;
   endtask
 endclass : dut_master_scl_hung_test
 
+
+//==========================================================================================
+// TEST 8 : DUT slave, 7-bit write to a WRONG address
+//   1) VIP writes to WRONG7 while the DUT is armed (one RX command queued)
+//        -> the DUT must NACK the address and must not store anything (RX_COUNT stays 0)
+//   2) VIP writes to the DUT's own address SELF7
+//        -> ACK and the byte is stored; proves the earlier wrong-address transfer did not
+//           use up the queued RX command
+//==========================================================================================
+class dut_slave_wrong_addr7_test extends dut_base_test;
+  `uvm_component_utils(dut_slave_wrong_addr7_test)
+  function new(string name = "dut_slave_wrong_addr7_test", uvm_component parent = null);
+    super.new(name, parent);
+  endfunction
+
+  task test_body();
+    i3c_controller_tx t;
+    bit [DATA_WIDTH-1:0] bad[$]  = '{8'h77};
+    bit [DATA_WIDTH-1:0] good[$] = '{8'h3B};
+    bit [7:0] v;
+    config_dut(1'b0, 2'b00, 1'b0, TGT7, SELF7);
+    push_rx();                                   // armed, so a NACK can only come from the address
+    #(2 * 1us);
+
+    // ---- 1) wrong address
+    send_to_dut(WRITE, WRONG7, I2C_ADDR_7BIT, bad);
+    get_ctrl_tx(t);
+    if(t != null) check_eq("DUT NACKed the wrong address", t.targetAddressStatus == NACK, 1);
+    #(5 * 1us);
+    rd(rm.rx_count_low, v);
+    check_eq("RX_COUNT after wrong address", v, 0);
+
+    // ---- 2) own address, same armed RX command
+    send_to_dut(WRITE, SELF7, I2C_ADDR_7BIT, good);
+    get_ctrl_tx(t);
+    if(t != null) check_eq("DUT ACKed its own address", t.targetAddressStatus == ACK, 1);
+    wait_rx_count(1);
+    rd(rm.rx_fifo_reg, v);
+    check_eq("RX_FIFO data (after wrong address)", v, 8'h3B);
+  endtask
+endclass : dut_slave_wrong_addr7_test
+
+
+//==========================================================================================
+// TEST 9 : DUT slave, 7-bit MULTI-byte write
+//   8 RX commands queued, the VIP writes 8 bytes in ONE transfer.
+//   Checks: address ACK, every data byte ACKed, RX_COUNT = 8, bytes come out of RX_FIFO
+//   in the order they were sent.
+//==========================================================================================
+class dut_slave_write7_multi_test extends dut_base_test;
+  `uvm_component_utils(dut_slave_write7_multi_test)
+  function new(string name = "dut_slave_write7_multi_test", uvm_component parent = null);
+    super.new(name, parent);
+  endfunction
+
+  task test_body();
+    i3c_controller_tx t;
+    bit [DATA_WIDTH-1:0] wd[$] = '{8'h11, 8'h22, 8'h33, 8'h44, 8'h55, 8'h66, 8'h77, 8'h88};
+    bit [7:0] v;
+    config_dut(1'b0, 2'b00, 1'b0, TGT7, SELF7);
+    repeat(wd.size()) push_rx();                 // one RX command per byte
+    #(2 * 1us);
+    send_to_dut(WRITE, SELF7, I2C_ADDR_7BIT, wd);
+    get_ctrl_tx(t);
+    if(t != null) begin
+      check_eq("DUT ACKed its address", t.targetAddressStatus == ACK, 1);
+      for(int i = 0; i < wd.size(); i++)
+        check_eq($sformatf("data byte[%0d] ACKed", i), (i < t.writeDataStatus.size()) && (t.writeDataStatus[i] == ACK), 1);
+    end
+    wait_rx_count(wd.size());
+    rd(rm.rx_count_low, v);
+    check_eq("RX_COUNT_LOW after 8 bytes", v, wd.size());
+    for(int i = 0; i < wd.size(); i++) begin
+      rd(rm.rx_fifo_reg, v);
+      check_eq($sformatf("RX_FIFO byte[%0d]", i), v, wd[i]);
+    end
+  endtask
+endclass : dut_slave_write7_multi_test
+
+
+//==========================================================================================
+// TEST 10 : DUT slave, 7-bit MULTI-byte read
+//   4 TX commands queued (TX_DATA), the VIP reads 4 bytes in ONE transfer (last byte NACKed
+//   by the VIP). Checks: address ACK and the 4 bytes arrive in the order they were queued.
+//==========================================================================================
+class dut_slave_read7_multi_test extends dut_base_test;
+  `uvm_component_utils(dut_slave_read7_multi_test)
+  function new(string name = "dut_slave_read7_multi_test", uvm_component parent = null);
+    super.new(name, parent);
+  endfunction
+
+  task test_body();
+    i3c_controller_tx t;
+    bit [DATA_WIDTH-1:0] none[$];
+    bit [7:0] exp[$] = '{8'hA1, 8'hB2, 8'hC3, 8'hD4};
+    config_dut(1'b0, 2'b00, 1'b0, TGT7, SELF7);
+    foreach(exp[i]) push_tx(exp[i]);             // one TX command per byte
+    #(2 * 1us);
+    send_to_dut(READ, SELF7, I2C_ADDR_7BIT, none, exp.size());
+    get_ctrl_tx(t);
+    if(t != null) begin
+      check_eq("DUT ACKed its address", t.targetAddressStatus == ACK, 1);
+      check_eq("read data count", t.readData.size(), exp.size());
+      for(int i = 0; i < exp.size() && i < t.readData.size(); i++)
+        check_eq($sformatf("read data[%0d] from DUT", i), t.readData[i], exp[i]);
+    end
+  endtask
+endclass : dut_slave_read7_multi_test
+
+
+//==========================================================================================
+// TEST 11 : DUT master, SPEED modes (MODE[2:1])
+//   The DUT writes one byte to the target VIP at each speed. The SCL monitor in hdl_top
+//   measures the real SCL period / high time / low time on the bus (median over the transfer).
+//   Pass criteria (NXP UM10204, DV handoff section 4.1):
+//     - the byte arrives correctly at that speed
+//     - period >= nominal period (frequency not above the mode maximum) and <= 1.25 x nominal
+//     - SCL low time and high time are not below the specified minimums
+//   Standard 100 kHz : period >= 10 us   tLOW >= 4.7 us  tHIGH >= 4.0 us
+//   Fast     400 kHz : period >= 2.5 us  tLOW >= 1.3 us  tHIGH >= 0.6 us
+//   Fast+    1 MHz   : period >= 1.0 us  tLOW >= 0.5 us  tHIGH >= 0.26 us
+//   MODE[2:1] = 00 standard, 01 fast, 1x fast+ (both 10 and 11 are tested)
+//==========================================================================================
+class dut_master_speed_base_test extends dut_base_test;
+  bit [1:0] spd;
+  real      per_min, per_max, low_min, high_min;     // ns
+  string    tag;
+
+  function new(string name = "dut_master_speed_base_test", uvm_component parent = null);
+    super.new(name, parent);
+  endfunction
+
+  // median of q[from:$]
+  function real median_from(real q[$], int from);
+    real a[$];
+    if(from >= q.size()) return 0.0;
+    a = q[from:$];
+    a.sort();
+    return a[a.size()/2];
+  endfunction
+
+  task test_body();
+    i3c_target_tx t;
+    bit [DATA_WIDTH-1:0] none[$];
+    int p0, h0, l0;
+    real per, hi, lo;
+    start_target_responder(none);
+    config_dut(1'b1, spd, 1'b0, TGT7, SELF7);
+    p0 = scl_period_q.size();
+    h0 = scl_high_q.size();
+    l0 = scl_low_q.size();
+    push_tx(8'hA5);
+    get_target_tx(t);
+    if(t != null) begin
+      check_eq({tag, " target address seen"}, t.targetAddress, TGT7);
+      check_eq({tag, " write data count"},    t.writeData.size(), 1);
+      if(t.writeData.size() > 0) check_eq({tag, " write data[0]"}, t.writeData[0], 8'hA5);
+    end
+
+    check_eq({tag, " number of SCL periods measured >= 10"},
+             (scl_period_q.size() - p0) >= 10, 1);
+    per = median_from(scl_period_q, p0);
+    hi  = median_from(scl_high_q,   h0);
+    lo  = median_from(scl_low_q,    l0);
+    `uvm_info(get_type_name(),
+      $sformatf("%s MEASURED : SCL period = %0.0f ns (%0.1f kHz), high = %0.0f ns, low = %0.0f ns",
+                tag, per, 1.0e6/per, hi, lo), UVM_NONE)
+    `uvm_info(get_type_name(),
+      $sformatf("%s LIMITS   : period %0.0f..%0.0f ns, high >= %0.0f ns, low >= %0.0f ns",
+                tag, per_min, per_max, high_min, low_min), UVM_NONE)
+    check_eq({tag, " SCL period >= nominal (not faster than the mode allows)"}, per >= per_min, 1);
+    check_eq({tag, " SCL period <= 1.25 x nominal (mode really applied)"},      per <= per_max, 1);
+    check_eq({tag, " SCL high time >= minimum"}, hi >= high_min, 1);
+    check_eq({tag, " SCL low time >= minimum"},  lo >= low_min,  1);
+  endtask
+endclass : dut_master_speed_base_test
+
+
+class dut_master_speed_std_test extends dut_master_speed_base_test;
+  `uvm_component_utils(dut_master_speed_std_test)
+  function new(string name = "dut_master_speed_std_test", uvm_component parent = null);
+    super.new(name, parent);
+    tag = "STD(00)"; spd = 2'b00;
+    per_min = 10000.0; per_max = 12500.0; low_min = 4700.0; high_min = 4000.0;
+  endfunction
+endclass : dut_master_speed_std_test
+
+class dut_master_speed_fast_test extends dut_master_speed_base_test;
+  `uvm_component_utils(dut_master_speed_fast_test)
+  function new(string name = "dut_master_speed_fast_test", uvm_component parent = null);
+    super.new(name, parent);
+    tag = "FAST(01)"; spd = 2'b01;
+    per_min = 2500.0; per_max = 3125.0; low_min = 1300.0; high_min = 600.0;
+  endfunction
+endclass : dut_master_speed_fast_test
+
+class dut_master_speed_fastp10_test extends dut_master_speed_base_test;
+  `uvm_component_utils(dut_master_speed_fastp10_test)
+  function new(string name = "dut_master_speed_fastp10_test", uvm_component parent = null);
+    super.new(name, parent);
+    tag = "FAST+(10)"; spd = 2'b10;
+    per_min = 1000.0; per_max = 1250.0; low_min = 500.0; high_min = 260.0;
+  endfunction
+endclass : dut_master_speed_fastp10_test
+
+class dut_master_speed_fastp11_test extends dut_master_speed_base_test;
+  `uvm_component_utils(dut_master_speed_fastp11_test)
+  function new(string name = "dut_master_speed_fastp11_test", uvm_component parent = null);
+    super.new(name, parent);
+    tag = "FAST+(11)"; spd = 2'b11;
+    per_min = 1000.0; per_max = 1250.0; low_min = 500.0; high_min = 260.0;
+  endfunction
+endclass : dut_master_speed_fastp11_test
+
 `endif
 
